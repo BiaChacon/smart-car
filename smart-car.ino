@@ -1,3 +1,5 @@
+#include <Fuzzy.h>
+
 #include <Ultrasonic.h>
 #include <Fuzzy.h>
 #include <FuzzySet.h>
@@ -7,12 +9,25 @@
 #include <FuzzyOutput.h>
 #include <FuzzyInput.h>
 
-#define pino_trigger 2
-#define pino_echo 3
+int inMotorA1=2, inMotorA2=3;
+int inMotorB1=4, inMotorB2=5;
+float velocidadeMotor1=10;
+float velocidadeMotor2=11;
+
+#define pino_trigger 7
+#define pino_echo 6
 Ultrasonic ultrasonic(pino_trigger, pino_echo);
 Fuzzy* fuzzy = new Fuzzy();
  
 void setup(){
+  
+  pinMode(velocidadeMotor1,OUTPUT);
+  pinMode(velocidadeMotor2,OUTPUT);
+
+  pinMode(inMotorA1,OUTPUT);
+  pinMode(inMotorB1,OUTPUT);
+  pinMode(inMotorA2,OUTPUT);
+  pinMode(inMotorB2,OUTPUT);
   
   Serial.begin(9600);
   
@@ -21,13 +36,13 @@ void setup(){
   
   //Criando os conjuntos fuzzy que representam a distância
   //Conjunto distância pequena
-  FuzzySet* pequena = new FuzzySet(0, 10, 10, 20);
+  FuzzySet* pequena = new FuzzySet(5, 20, 20, 40);
   distancia->addFuzzySet(pequena);
   //Conjunto distância média
-  FuzzySet* media = new FuzzySet(20, 30, 50, 70);
+  FuzzySet* media = new FuzzySet(30, 50, 50, 70);
   distancia->addFuzzySet(media);
   //Conjunto distância grande
-  FuzzySet* grande = new FuzzySet(80, 100, 100, 100);
+  FuzzySet* grande = new FuzzySet(60, 100, 100, 200);
   distancia->addFuzzySet(grande);
   //Adicionando a entrada fuzzy ao sistema
   fuzzy->addFuzzyInput(distancia); 
@@ -37,13 +52,13 @@ void setup(){
   
   //Criando os conjuntos fuzzy que representam a velocidade
   //Conjunto velocidade lenta
-  FuzzySet* lenta = new FuzzySet(0, 5, 5, 10);
+  FuzzySet* lenta = new FuzzySet(50, 50, 100, 150);
   velocidade->addFuzzySet(lenta);
   //Conjunto velocidade normal
-  FuzzySet* normal = new FuzzySet(5, 10, 20, 40);
+  FuzzySet* normal = new FuzzySet(75, 125, 125, 180);
   velocidade->addFuzzySet(normal);
   //Conjunto velocidade rapida
-  FuzzySet* rapida = new FuzzySet(30, 40, 40, 50);
+  FuzzySet* rapida = new FuzzySet(150, 200, 200, 255);
   velocidade->addFuzzySet(rapida);
   // Adicionando o FuzzyOutput velocidade ao sistema
   fuzzy->addFuzzyOutput(velocidade); 
@@ -93,12 +108,20 @@ void loop(){
     fuzzy->fuzzify();
     
     float v = fuzzy->defuzzify(1);
+
+    analogWrite(velocidadeMotor1,v);
+    analogWrite(velocidadeMotor2,v);
+    
+    digitalWrite(inMotorA1,LOW);
+    digitalWrite(inMotorA2,HIGH);
+    digitalWrite(inMotorB1,HIGH);
+    digitalWrite(inMotorB2,LOW);
     
     Serial.print("Distancia = ");
     Serial.print(d);
     Serial.print(" Velocidade = ");
     Serial.println(v);
     
-   delay(1000);
+  //delay(1000);
 
 }
