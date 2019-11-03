@@ -1,13 +1,15 @@
 #include <Fuzzy.h>
-
-#include <Ultrasonic.h>
-#include <Fuzzy.h>
 #include <FuzzySet.h>
 #include <FuzzyRule.h>
 #include <FuzzyRuleAntecedent.h>
 #include <FuzzyRuleConsequent.h>
 #include <FuzzyOutput.h>
 #include <FuzzyInput.h>
+#include <Ultrasonic.h>
+#include <Servo.h>
+
+#define SERVO 9
+Servo s;
 
 int inMotorA1=2, inMotorA2=3;
 int inMotorB1=4, inMotorB2=5;
@@ -17,9 +19,13 @@ float velocidadeMotor2=11;
 #define pino_trigger 7
 #define pino_echo 6
 Ultrasonic ultrasonic(pino_trigger, pino_echo);
+
 Fuzzy* fuzzy = new Fuzzy();
  
 void setup(){
+
+  s.attach(SERVO);  
+  s.write(0);
   
   pinMode(velocidadeMotor1,OUTPUT);
   pinMode(velocidadeMotor2,OUTPUT);
@@ -111,6 +117,11 @@ void loop(){
 
     analogWrite(velocidadeMotor1,v);
     analogWrite(velocidadeMotor2,v);
+      
+    //MUDAR O CAMINHO
+    if(d <= 5){
+      mudar();
+    }   
     
     digitalWrite(inMotorA1,LOW);
     digitalWrite(inMotorA2,HIGH);
@@ -121,7 +132,30 @@ void loop(){
     Serial.print(d);
     Serial.print(" Velocidade = ");
     Serial.println(v);
-    
-  //delay(1000);
 
+}
+
+void mudar(){
+  
+    digitalWrite(inMotorA1,HIGH);
+    digitalWrite(inMotorA2,LOW);
+    digitalWrite(inMotorB1,LOW);
+    digitalWrite(inMotorB2,HIGH);
+      
+    analogWrite(velocidadeMotor1,255);
+    analogWrite(velocidadeMotor2,255);
+      
+    delay(1000);
+      
+    s.write(90);
+      
+    digitalWrite(inMotorA1,LOW);
+    digitalWrite(inMotorA2,HIGH);
+    digitalWrite(inMotorB1,HIGH);
+    digitalWrite(inMotorB2,LOW);
+    
+    delay(1000);
+    
+    s.write(0);
+    
 }
